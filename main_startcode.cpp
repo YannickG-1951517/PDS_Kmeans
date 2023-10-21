@@ -241,7 +241,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
                 }
                 for (int i = 0; i < numClusters; i++) {
                     for (int j = 0; j < num_columns; j++) {
-                        centroids[i] = pointsTotals[i][j]/pointsTotals[i][num_columns];
+                        centroids[i * num_columns + j] = pointsTotals[i][j]/pointsTotals[i][num_columns];
                     }
                 }
             }

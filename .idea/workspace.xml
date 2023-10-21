@@ -9,7 +9,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="50c2fb52-09f5-4cfc-82f6-4f23454586f3" name="Changes" comment="" />
+    <list default="true" id="50c2fb52-09f5-4cfc-82f6-4f23454586f3" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main_startcode.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main_startcode.cpp" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,9 +29,9 @@
     <option name="majorVersion" value="2023" />
     <option name="minorVersion" value="2.2" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="2WyWBpvZFOtcasFddV9toTc5MZD" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -45,6 +48,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "git-widget-placeholder": "main",
+    "last_opened_file_path": "D:/data/GitHub/MA 1 INF/PDS_Kmeans",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -53,7 +57,7 @@
   }
 }]]></component>
   <component name="RunManager" selected="C/C++ File.main_startcode.cpp">
-    <configuration name="main_startcode.cpp" type="CppFileRunConfiguration" factoryName="CppFileRunConfiguration" PROGRAM_PARAMS="--input $PROJECT_DIR$/../datasets/mous&#9;e_500x2.csv --output &quot;mouse.csv&quot; --k 3 --repetitions 10 --seed 1338" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PDS_Kmeans" TARGET_NAME="main_startcode.cpp" CONFIG_NAME="main_startcode.cpp">
+    <configuration name="main_startcode.cpp" type="CppFileRunConfiguration" factoryName="CppFileRunConfiguration" PROGRAM_PARAMS="--input ./datasets/mouse_500x2.csv --output &quot;mouse.csv&quot; --k 3 --repetitions 10 --seed 1338 --centroidtrace &quot;mouse_centroidtrace.csv&quot; --trace &quot;mouts_trace.csv&quot;" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PDS_Kmeans" TARGET_NAME="main_startcode.cpp" CONFIG_NAME="main_startcode.cpp">
       <option name="sourceFile" value="main_startcode.cpp" />
       <method v="2">
         <option name="com.jetbrains.cidr.cpp.runfile.CppFileBuildBeforeRunTaskProvider$BasicBuildBeforeRunTask" enabled="true" />
@@ -92,6 +96,7 @@
       <option name="presentableId" value="Default" />
       <updated>1697705167453</updated>
       <workItem from="1697705168540" duration="16785000" />
+      <workItem from="1697909554118" duration="6122000" />
     </task>
     <servers />
   </component>
@@ -105,6 +110,11 @@
           <url>file://$PROJECT_DIR$/main_startcode.cpp</url>
           <line>171</line>
           <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/main_startcode.cpp</url>
+          <line>192</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
