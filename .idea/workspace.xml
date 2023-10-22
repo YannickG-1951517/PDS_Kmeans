@@ -12,6 +12,7 @@
     <list default="true" id="50c2fb52-09f5-4cfc-82f6-4f23454586f3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main_startcode.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main_startcode.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main_startcode.exe" beforeDir="false" afterPath="$PROJECT_DIR$/main_startcode.exe" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,27 +97,11 @@
       <option name="presentableId" value="Default" />
       <updated>1697705167453</updated>
       <workItem from="1697705168540" duration="16785000" />
-      <workItem from="1697909554118" duration="6122000" />
+      <workItem from="1697909554118" duration="6830000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/main_startcode.cpp</url>
-          <line>171</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/main_startcode.cpp</url>
-          <line>192</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

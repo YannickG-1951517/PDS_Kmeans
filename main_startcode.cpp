@@ -134,6 +134,18 @@ FileCSVWriter openDebugFile(const std::string &n)
     return f;
 }
 
+// Function to calculate squared Euclidean distance
+double squaredDistance(const double* point1, const double* point2, size_t size)
+{
+    double distance = 0.0;
+    for (size_t i = 0; i < size; ++i)
+    {
+        double diff = point1[i] - point2[i];
+        distance += diff * diff;
+    }
+    return distance;
+}
+
 int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFileName,
            int numClusters, int repetitions, int numBlocks, int numThreads,
            const std::string &centroidDebugFileName, const std::string &clusterDebugFileName)
@@ -150,61 +162,47 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
         return -1;
     }
 
-    // TODO: load dataset
+    // Load the dataset
     vector<double> data;
     size_t num_rows;
     size_t num_columns;
     ifstream file(inputFile);
     readData(file, data, num_rows, num_columns);
 
-
-    // This is a basic timer from std::chrono ; feel free to use the appropriate timer for
-    // each of the technologies, e.g. OpenMP has omp_get_wtime()
     Timer timer;
-
-    double bestDistSquaredSum = std::numeric_limits<double>::max(); // can only get better
+    double bestDistSquaredSum = std::numeric_limits<double>::max();
     vector<int> bestClusters(num_rows);
-    std::vector<size_t> stepsPerRepetition(repetitions); // to save the number of steps each rep needed
+    std::vector<size_t> stepsPerRepetition(repetitions);
 
-    // Do the k-means routine a number of times, each time starting from
-    // different random centroids (use Rng::pickRandomIndices), and keep
-    // the best result of these repetitions.
-    for (int r = 0 ; r < repetitions ; r++)
+    for (int r = 0; r < repetitions; r++)
     {
         size_t numSteps = 0;
-        // TODO: perform an actual k-means run, starting from random centroids
-        //       (see rng.h)
-
         vector<size_t> indices(numClusters);
         rng.pickRandomIndices(num_rows, indices);
 
-
-        vector<double> centroids;
-
-        for (int i = 0; i < indices.size(); i++) {
-            for (int j = 0; j < num_columns; j++) {
-                centroids.push_back(data[indices[i]*num_columns+j]);
-            }
-        }
-
+        vector<vector<double>> centroids(numClusters, vector<double>(num_columns, 0.0));
         vector<int> clusters(num_rows, -1);
 
         bool changed = true;
-        while (changed) {
+        double distanceSquaredSum = 0.0;  // Declare distanceSquaredSum here
+        while (changed)
+        {
             numSteps++;
-
             changed = false;
-            double distanceSquaredSum = 0;
 
-            for (int i = 0; i < num_rows; i++) {
-                double minDistance = numeric_limits<double>::max(); // can only get better
-                int clusterIndex;
-                for (int k = 0; k < numClusters; k++) {
-                    double currentDistance = 0;
-                    for (int j = 0; j < num_columns; j++) {
-                        currentDistance += pow((data[i * num_columns + j] - centroids[k * num_columns + j]), 2);
-                    }
-                    if (minDistance > currentDistance) {
+            // Use the previously declared distanceSquaredSum
+            distanceSquaredSum = 0.0;
+
+            for (size_t i = 0; i < num_rows; i++)
+            {
+                double minDistance = numeric_limits<double>::max();
+                int clusterIndex = -1;
+                for (int k = 0; k < numClusters; k++)
+                {
+                    double currentDistance = squaredDistance(data.data() + i * num_columns, centroids[k].data(), num_columns);
+
+                    if (currentDistance < minDistance)
+                    {
                         minDistance = currentDistance;
                         clusterIndex = k;
                     }
@@ -212,41 +210,44 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
                 distanceSquaredSum += minDistance;
 
-                if (clusterIndex != clusters[i]) {
+                if (clusterIndex != clusters[i])
+                {
                     clusters[i] = clusterIndex;
                     changed = true;
                 }
             }
 
-            if (clustersDebugFile.is_open()) {
+            if (clustersDebugFile.is_open())
+            {
                 clustersDebugFile.write(clusters);
             }
-            if (centroidDebugFile.is_open()) {
-                for (int i = 0; i < numClusters; i++) {
-                    vector<double> centroid(num_columns);
-                    for ( int j = 0; j < num_columns; j++) {
-                        centroid[j] = centroids[i*num_columns+j];
-                    }
-                    centroidDebugFile.write(centroid);
-                }
+            if (centroidDebugFile.is_open())
+            {
+                centroidDebugFile.write(centroids);
             }
 
-            if (changed) {
-                vector<vector<double>> pointsTotals(numClusters, vector<double> (num_columns+1, 0)); // per centroid x, y, #points
-                for (int i = 0; i < num_rows; i++) {
-                    for (int j = 0; j < num_columns; j++) {
-                        pointsTotals[clusters[i]][j] += data[i*num_columns+j];
+            if (changed)
+            {
+                vector<vector<double>> pointsTotals(numClusters, vector<double>(num_columns + 1, 0));
+                for (size_t i = 0; i < num_rows; i++)
+                {
+                    for (size_t j = 0; j < num_columns; j++)
+                    {
+                        pointsTotals[clusters[i]][j] += data[i * num_columns + j];
                     }
                     pointsTotals[clusters[i]][num_columns]++;
                 }
-                for (int i = 0; i < numClusters; i++) {
-                    for (int j = 0; j < num_columns; j++) {
-                        centroids[i * num_columns + j] = pointsTotals[i][j]/pointsTotals[i][num_columns];
+                for (int i = 0; i < numClusters; i++)
+                {
+                    for (size_t j = 0; j < num_columns; j++)
+                    {
+                        centroids[i][j] = pointsTotals[i][j] / pointsTotals[i][num_columns];
                     }
                 }
             }
 
-            if (distanceSquaredSum < bestDistSquaredSum) {
+            if (distanceSquaredSum < bestDistSquaredSum)
+            {
                 bestClusters = clusters;
                 bestDistSquaredSum = distanceSquaredSum;
             }
@@ -254,25 +255,23 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
         stepsPerRepetition[r] = numSteps;
 
-        // Make sure debug logging is only done on first iteration ; subsequent checks
-        // with is_open will indicate that no logging needs to be done anymore.
         centroidDebugFile.close();
         clustersDebugFile.close();
     }
 
     timer.stop();
 
-    // Some example output, of course you can log your timing data anyway you like.
+    // Output performance and result information
+
     std::cerr << "# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,timeinseconds" << std::endl;
     std::cout << "sequential," << numBlocks << "," << numThreads << "," << inputFile << ","
               << rng.getUsedSeed() << "," << numClusters << ","
-              << repetitions << "," << bestDistSquaredSum << "," << timer.durationNanoSeconds()/1e9
+              << repetitions << "," << bestDistSquaredSum << "," << timer.durationNanoSeconds() / 1e9
               << std::endl;
 
-    // Write the number of steps per repetition, kind of a signature of the work involved
     csvOutputFile.write(stepsPerRepetition, "# Steps: ");
-    // Write best clusters to csvOutputFile, something like
     csvOutputFile.write(bestClusters);
+
     return 0;
 }
 
