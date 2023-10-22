@@ -6,7 +6,7 @@
 #include "CSVWriter.hpp"
 #include "rng.h"
 #include "timer.h"
-#include "rng.cpp"
+//#include "rng.cpp"
 
 using namespace std;
 
@@ -149,8 +149,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
         std::cerr << "Unable to open output file " << outputFileName << std::endl;
         return -1;
     }
-
-    // TODO: load dataset
+    
     vector<double> data;
     size_t num_rows;
     size_t num_columns;
@@ -172,8 +171,6 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
     for (int r = 0 ; r < repetitions ; r++)
     {
         size_t numSteps = 0;
-        // TODO: perform an actual k-means run, starting from random centroids
-        //       (see rng.h)
 
         vector<size_t> indices(numClusters);
         rng.pickRandomIndices(num_rows, indices);

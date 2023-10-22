@@ -16,3 +16,5 @@ clean:
 
 kmeans: main_startcode.cpp rng.cpp
 	$(CXX) $(FLAGS) -o kmeans main_startcode.cpp rng.cpp
+
+
