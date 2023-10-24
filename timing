@@ -1,0 +1,7 @@
+input file: 1M_1000000x4.csv
+seed: 1951517
+k: 7
+repetitions: 15
+
+Own code took 237.495 seconds to complete (3.96 minutes)
+Reference code took 258.965 seconds to complete (4.32 minutes)
