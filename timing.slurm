@@ -9,6 +9,6 @@
 
 source /data/leuven/303/vsc30380/slurmhooks
 
-./serial_kmeans --input ./datasets/1M_1000000x4.csv --output kmeans_test_own_code --k 7 --repetitions 15 --seed 1951517
+./serial/serial_kmeans --input ./datasets/1M_1000000x4.csv --output kmeans_test_own_code --k 7 --repetitions 15 --seed 1951517
+./serial/omp_kmeans --input ./datasets/1M_1000000x4.csv --output kmeans_test_own_code --k 7 --repetitions 15 --seed 1951517
 
-/data/leuven/303/vsc30380/kmeans_serial_reference --input ./datasets/1M_1000000x4.csv --output kmeans_test_reference_code --k 7 --repetitions 15 --seed 1951517

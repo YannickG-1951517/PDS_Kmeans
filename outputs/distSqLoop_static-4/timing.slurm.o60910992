@@ -1,0 +1,24 @@
+SLURM_JOB_ID: 60910992
+SLURM_JOB_USER: vsc35729
+SLURM_JOB_ACCOUNT: llp_h_pds
+SLURM_JOB_NAME: timing.slurm
+SLURM_CLUSTER_NAME: wice
+SLURM_JOB_PARTITION: batch
+SLURM_NNODES: 1
+SLURM_NODELIST: r33c20n2
+SLURM_JOB_CPUS_PER_NODE: 1
+Date: Sun Nov  5 11:38:05 CET 2023
+Walltime: 00-00:20:00
+========================================================================
+------------------------------------------------------------------------------
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,221.855
+------------------------------------------------------------------------------
+JOBSTAT:ELAPSED_SECONDS=223
+JOBSTAT:SLURM_CLUSTER_NAME=wice
+JOBSTAT:SLURM_NODELIST=r33c20n2
+JOBSTAT:SLURM_NTASKS=1
+JOBSTAT:SLURM_GPUS_PER_NODE=
+JOBSTAT:SLURM_JOB_CPUS_PER_NODE=1
+JOBSTAT:SLURM_JOB_NUM_NODES=1
+JOBSTAT:SLURM_JOB_PARTITION=batch
+JOBSTAT:ESTIMATED_CREDITS=9
