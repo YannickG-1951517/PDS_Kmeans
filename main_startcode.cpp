@@ -193,6 +193,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
             changed = false;
             double distanceSquaredSum = 0;
 
+            #pragma omp parallel for reduction(+:distanceSquaredSum)
             for (int i = 0; i < num_rows; i++) {
                 double minDistance = numeric_limits<double>::max(); // can only get better
                 int clusterIndex;
