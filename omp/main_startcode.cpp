@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
+#include <omp.h>
 #include "CSVReader.hpp"
 #include "CSVWriter.hpp"
 #include "rng.h"
@@ -138,6 +139,8 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
            int numClusters, int repetitions, int numBlocks, int numThreads,
            const std::string &centroidDebugFileName, const std::string &clusterDebugFileName)
 {
+    omp_set_num_threads(numThreads);
+
     // If debug filenames are specified, this opens them. The is_open method
     // can be used to check if they are actually open and should be written to.
     FileCSVWriter centroidDebugFile = openDebugFile(centroidDebugFileName);
