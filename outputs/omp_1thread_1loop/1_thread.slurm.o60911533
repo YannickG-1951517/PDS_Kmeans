@@ -1,0 +1,39 @@
+SLURM_JOB_ID: 60911533
+SLURM_JOB_USER: vsc35733
+SLURM_JOB_ACCOUNT: llp_h_pds
+SLURM_JOB_NAME: 1_thread.slurm
+SLURM_CLUSTER_NAME: wice
+SLURM_JOB_PARTITION: batch
+SLURM_NNODES: 1
+SLURM_NODELIST: s28c11n2
+SLURM_JOB_CPUS_PER_NODE: 1
+Date: Mon Nov  6 11:26:29 CET 2023
+Walltime: 00-00:40:00
+========================================================================
+------------------------------------------------------------------------------
+omp kmeans 1
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,279.656
+omp kmeans 2
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,279.504
+omp kmeans 3
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,278.173
+omp kmeans 4
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,277.533
+serial kmeans 1
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,232.848
+serial kmeans 2
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,230.667
+serial kmeans 3
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,235.166
+serial kmeans 4
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,234.25
+------------------------------------------------------------------------------
+JOBSTAT:ELAPSED_SECONDS=2054
+JOBSTAT:SLURM_CLUSTER_NAME=wice
+JOBSTAT:SLURM_NODELIST=s28c11n2
+JOBSTAT:SLURM_NTASKS=1
+JOBSTAT:SLURM_GPUS_PER_NODE=
+JOBSTAT:SLURM_JOB_CPUS_PER_NODE=1
+JOBSTAT:SLURM_JOB_NUM_NODES=1
+JOBSTAT:SLURM_JOB_PARTITION=batch
+JOBSTAT:ESTIMATED_CREDITS=87

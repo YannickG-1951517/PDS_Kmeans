@@ -233,8 +233,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
             }
 
             if (changed) {
-                vector<vector<double>> pointsTotals(numClusters, vector<double> (num_columns+1, 0)); // per centroid x, y, #points
-                #pragma omp parallel for
+                vector<vector<double>> pointsTotals(numClusters, vector<double> (num_columns+1, 0)); // per centroid x, y, #pointsrls
                 for (int i = 0; i < num_rows; i++) {
                     for (int j = 0; j < num_columns; j++) {
                         pointsTotals[clusters[i]][j] += data[i*num_columns+j];
