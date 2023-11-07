@@ -269,7 +269,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
     std::cerr << "# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,serialtimeinseconds,paralleltimeinseconds" << std::endl;
     std::cout << "omp," << numBlocks << "," << numThreads << "," << inputFile << ","
               << rng.getUsedSeed() << "," << numClusters << ","
-              << repetitions << "," << bestDistSquaredSum << "," << serialTimer.durationNanoSeconds()/1e9
+              << repetitions << "," << bestDistSquaredSum << "," << serialTimer.durationNanoSeconds()/1e9 << ","
               << parallelTimer.durationNanoSeconds()/1e9 << std::endl;
     std::cout << "Serial time: " << serialTimer.durationNanoSeconds()/1e9 - parallelTimer.durationNanoSeconds()/1e9
               << std::endl << "Parallel time: " << parallelTimer.durationNanoSeconds()/1e9 << std::endl
