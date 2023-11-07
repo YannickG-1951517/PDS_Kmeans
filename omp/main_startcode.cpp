@@ -162,7 +162,8 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
     // This is a basic timer from std::chrono ; feel free to use the appropriate timer for
     // each of the technologies, e.g. OpenMP has omp_get_wtime()
-    Timer timer;
+    Timer parallelTimer(false);
+    Timer serialTimer;
 
     double bestDistSquaredSum = std::numeric_limits<double>::max(); // can only get better
     vector<int> bestClusters(num_rows);
@@ -195,7 +196,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
             changed = false;
             double distanceSquaredSum = 0;
-
+            parallelTimer.start();
             #pragma omp parallel for reduction(+:distanceSquaredSum) schedule(static)
             for (int i = 0; i < num_rows; i++) {
                 double minDistance = numeric_limits<double>::max(); // can only get better
@@ -218,6 +219,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
                     changed = true;
                 }
             }
+            parallelTimer.stop();
 
             if (clustersDebugFile.is_open()) {
                 clustersDebugFile.write(clusters);
@@ -261,13 +263,19 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
         clustersDebugFile.close();
     }
 
-    timer.stop();
+    serialTimer.stop();
 
     // Some example output, of course you can log your timing data anyway you like.
-    std::cerr << "# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,timeinseconds" << std::endl;
-    std::cout << "sequential," << numBlocks << "," << numThreads << "," << inputFile << ","
+    std::cerr << "# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,serialtimeinseconds,paralleltimeinseconds" << std::endl;
+    std::cout << "omp," << numBlocks << "," << numThreads << "," << inputFile << ","
               << rng.getUsedSeed() << "," << numClusters << ","
-              << repetitions << "," << bestDistSquaredSum << "," << timer.durationNanoSeconds()/1e9
+              << repetitions << "," << bestDistSquaredSum << "," << serialTimer.durationNanoSeconds()/1e9
+              << parallelTimer.durationNanoSeconds()/1e9 << std::endl;
+    std::cout << "Serial time: " << serialTimer.durationNanoSeconds()/1e9 - parallelTimer.durationNanoSeconds()/1e9
+              << std::endl << "Parallel time: " << parallelTimer.durationNanoSeconds()/1e9 << std::endl
+              << "T(N) = " << serialTimer.durationNanoSeconds()/1e9 - parallelTimer.durationNanoSeconds()/1e9
+              << " + " << parallelTimer.durationNanoSeconds()/1e9 << "/" << numThreads
+              << " = " << serialTimer.durationNanoSeconds()/1e9 - parallelTimer.durationNanoSeconds()/1e9 + ((parallelTimer.durationNanoSeconds()/1e9)/numThreads)
               << std::endl;
 
     // Write the number of steps per repetition, kind of a signature of the work involved
