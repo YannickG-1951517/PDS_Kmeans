@@ -1,0 +1,39 @@
+SLURM_JOB_ID: 60919043
+SLURM_JOB_USER: vsc35729
+SLURM_JOB_ACCOUNT: llp_h_pds
+SLURM_JOB_NAME: timing.slurm
+SLURM_CLUSTER_NAME: wice
+SLURM_JOB_PARTITION: batch
+SLURM_NNODES: 1
+SLURM_NODELIST: n28c27n1
+SLURM_JOB_CPUS_PER_NODE: 10
+Date: Wed Nov  8 15:21:53 CET 2023
+Walltime: 00-00:30:00
+========================================================================
+------------------------------------------------------------------------------
+omp,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,228.306,0.0268961
+Serial time: 228.279
+Parallel time: 0.0268961
+T(N) = 228.279 + 0.0268961/1 = 228.306
+omp,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,227.339,0.0275643
+Serial time: 227.312
+Parallel time: 0.0275643
+T(N) = 227.312 + 0.0275643/1 = 227.339
+omp,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,227.762,0.027307
+Serial time: 227.734
+Parallel time: 0.027307
+T(N) = 227.734 + 0.027307/1 = 227.762
+omp,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,228.37,0.027109
+Serial time: 228.342
+Parallel time: 0.027109
+T(N) = 228.342 + 0.027109/1 = 228.37
+------------------------------------------------------------------------------
+JOBSTAT:ELAPSED_SECONDS=915
+JOBSTAT:SLURM_CLUSTER_NAME=wice
+JOBSTAT:SLURM_NODELIST=n28c27n1
+JOBSTAT:SLURM_NTASKS=10
+JOBSTAT:SLURM_GPUS_PER_NODE=
+JOBSTAT:SLURM_JOB_CPUS_PER_NODE=10
+JOBSTAT:SLURM_JOB_NUM_NODES=1
+JOBSTAT:SLURM_JOB_PARTITION=batch
+JOBSTAT:ESTIMATED_CREDITS=388

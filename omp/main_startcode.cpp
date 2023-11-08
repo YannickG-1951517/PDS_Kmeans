@@ -162,7 +162,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
     // This is a basic timer from std::chrono ; feel free to use the appropriate timer for
     // each of the technologies, e.g. OpenMP has omp_get_wtime()
-    Timer parallelTimer(false);
+    AutoAverageTimer parallelTimer("paralleltimer");
     Timer serialTimer;
 
     double bestDistSquaredSum = std::numeric_limits<double>::max(); // can only get better
@@ -266,6 +266,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
     serialTimer.stop();
 
     // Some example output, of course you can log your timing data anyway you like.
+    parallelTimer.report();
     std::cerr << "# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,serialtimeinseconds,paralleltimeinseconds" << std::endl;
     std::cout << "omp," << numBlocks << "," << numThreads << "," << inputFile << ","
               << rng.getUsedSeed() << "," << numClusters << ","

@@ -1,0 +1,8 @@
+#paralleltimer 0.027311 +/- 0.00034486 sec (7143 measurements)
+# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,serialtimeinseconds,paralleltimeinseconds
+#paralleltimer 0.0272196 +/- 0.000319214 sec (7143 measurements)
+# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,serialtimeinseconds,paralleltimeinseconds
+#paralleltimer 0.0272303 +/- 0.000318413 sec (7143 measurements)
+# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,serialtimeinseconds,paralleltimeinseconds
+#paralleltimer 0.0272229 +/- 0.000326899 sec (7143 measurements)
+# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,serialtimeinseconds,paralleltimeinseconds
