@@ -1,0 +1,135 @@
+
+========================================================================
+------------------------------------------------------------------------------
+253.865 // run time of serial implementation
+225.88 // time of serial code
+0.0275818 // time of parallel code part (measured in serial implementation)
+
+omp kmeans thread count: 1 try 1
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,273.178
+omp kmeans thread count: 1 try 2
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,273.102
+omp kmeans thread count: 1 try 3
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,271.87
+omp kmeans thread count: 1 try 4
+sequential,1,1,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,272.677
+omp kmeans thread count: 2 try 1
+sequential,1,2,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,152.757
+omp kmeans thread count: 2 try 2
+sequential,1,2,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,153.722
+omp kmeans thread count: 2 try 3
+sequential,1,2,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,154.795
+omp kmeans thread count: 2 try 4
+sequential,1,2,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,155.219
+omp kmeans thread count: 3 try 1
+sequential,1,3,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,115.696
+omp kmeans thread count: 3 try 2
+sequential,1,3,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,116.596
+omp kmeans thread count: 3 try 3
+sequential,1,3,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,115.308
+omp kmeans thread count: 3 try 4
+sequential,1,3,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,114.451
+omp kmeans thread count: 4 try 1
+sequential,1,4,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,94.577
+omp kmeans thread count: 4 try 2
+sequential,1,4,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,95.0881
+omp kmeans thread count: 4 try 3
+sequential,1,4,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,94.7012
+omp kmeans thread count: 4 try 4
+sequential,1,4,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,95.7054
+omp kmeans thread count: 5 try 1
+sequential,1,5,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,83.7536
+omp kmeans thread count: 5 try 2
+sequential,1,5,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,82.8139
+omp kmeans thread count: 5 try 3
+sequential,1,5,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,81.7204
+omp kmeans thread count: 5 try 4
+sequential,1,5,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,81.6422
+omp kmeans thread count: 6 try 1
+sequential,1,6,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,73.468
+omp kmeans thread count: 6 try 2
+sequential,1,6,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,73.0195
+omp kmeans thread count: 6 try 3
+sequential,1,6,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,72.1826
+omp kmeans thread count: 6 try 4
+sequential,1,6,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,73.0657
+omp kmeans thread count: 7 try 1
+sequential,1,7,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,67.3283
+omp kmeans thread count: 7 try 2
+sequential,1,7,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,66.983
+omp kmeans thread count: 7 try 3
+sequential,1,7,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,67.1184
+omp kmeans thread count: 7 try 4
+sequential,1,7,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,66.8304
+omp kmeans thread count: 8 try 1
+sequential,1,8,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,63.3739
+omp kmeans thread count: 8 try 2
+sequential,1,8,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,63.1955
+omp kmeans thread count: 8 try 3
+sequential,1,8,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,63.2771
+omp kmeans thread count: 8 try 4
+sequential,1,8,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,63.1666
+omp kmeans thread count: 9 try 1
+sequential,1,9,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,59.6505
+omp kmeans thread count: 9 try 2
+sequential,1,9,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,60.4579
+omp kmeans thread count: 9 try 3
+sequential,1,9,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,59.9557
+omp kmeans thread count: 9 try 4
+sequential,1,9,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,60.0042
+omp kmeans thread count: 10 try 1
+sequential,1,10,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,57.5296
+omp kmeans thread count: 10 try 2
+sequential,1,10,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,56.8023
+omp kmeans thread count: 10 try 3
+sequential,1,10,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,56.7177
+omp kmeans thread count: 10 try 4
+sequential,1,10,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,57.4827
+omp kmeans thread count: 11 try 1
+sequential,1,11,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,54.8209
+omp kmeans thread count: 11 try 2
+sequential,1,11,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,54.9635
+omp kmeans thread count: 11 try 3
+sequential,1,11,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,54.9663
+omp kmeans thread count: 11 try 4
+sequential,1,11,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,54.7545
+omp kmeans thread count: 12 try 1
+sequential,1,12,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,53.0343
+omp kmeans thread count: 12 try 2
+sequential,1,12,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,52.6993
+omp kmeans thread count: 12 try 3
+sequential,1,12,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,52.8359
+omp kmeans thread count: 12 try 4
+sequential,1,12,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,52.8476
+omp kmeans thread count: 13 try 1
+sequential,1,13,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,51.1282
+omp kmeans thread count: 13 try 2
+sequential,1,13,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,50.7054
+omp kmeans thread count: 13 try 3
+sequential,1,13,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,51.2348
+omp kmeans thread count: 13 try 4
+sequential,1,13,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,51.7143
+omp kmeans thread count: 14 try 1
+sequential,1,14,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,49.155
+omp kmeans thread count: 14 try 2
+sequential,1,14,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,50.0828
+omp kmeans thread count: 14 try 3
+sequential,1,14,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,49.0177
+omp kmeans thread count: 14 try 4
+sequential,1,14,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,49.9458
+omp kmeans thread count: 15 try 1
+sequential,1,15,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,48.692
+omp kmeans thread count: 15 try 2
+sequential,1,15,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,48.5097
+omp kmeans thread count: 15 try 3
+sequential,1,15,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,48.0518
+omp kmeans thread count: 15 try 4
+sequential,1,15,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,48.8908
+omp kmeans thread count: 16 try 1
+sequential,1,16,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,47.5517
+omp kmeans thread count: 16 try 2
+sequential,1,16,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,48.2031
+omp kmeans thread count: 16 try 3
+sequential,1,16,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,48.2534
+omp kmeans thread count: 16 try 4
+sequential,1,16,./datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,47.8673
