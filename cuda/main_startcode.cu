@@ -134,8 +134,32 @@ FileCSVWriter openDebugFile(const std::string &n)
     return f;
 }
 
-__global__ void kernel () {
-    
+__global__ void kernel (int numClusters, int num_columns, int num_rows, double data[], double centroids[], int* clusters, bool changed, double distanceSquaredSum[]) {
+    printf(changed ? "true kernel\n" : "false kernel\n");
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    while (i < num_rows) {
+        // double minDistance = numeric_limits<double>::max(); // can only get better
+        double minDistance = __DBL_MAX__; // can only get better
+        int clusterIndex;
+        for (int k = 0; k < numClusters; k++) {
+            double currentDistance = 0;
+            for (int j = 0; j < num_columns; j++) {
+                currentDistance += pow((data[i * num_columns + j] - centroids[k * num_columns + j]), 2);
+            }
+            if (minDistance > currentDistance) {
+                minDistance = currentDistance;
+                clusterIndex = k;
+            }
+        }
+
+        distanceSquaredSum[i] = minDistance;
+
+        if (clusterIndex != clusters[i]) {
+        clusters[i] = clusterIndex;
+        changed = true;
+        }
+        i += blockDim.x * gridDim.x;
+    }
 }
 
 int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFileName,
@@ -197,28 +221,44 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
             changed = false;
             double distanceSquaredSum = 0;
             
-            for (int i = 0; i < num_rows; i++) {
-                double minDistance = numeric_limits<double>::max(); // can only get better
-                int clusterIndex;
-                for (int k = 0; k < numClusters; k++) {
-                    double currentDistance = 0;
-                    for (int j = 0; j < num_columns; j++) {
-                        currentDistance += pow((data[i * num_columns + j] - centroids[k * num_columns + j]), 2);
-                    }
-                    if (minDistance > currentDistance) {
-                        minDistance = currentDistance;
-                        clusterIndex = k;
-                    }
-                }
+            double distanceSquaredSumArray[numBlocks*numThreads];
+            double* GPUdistanceSquaredSum;
+            cudaMallocManaged(&GPUdistanceSquaredSum, numBlocks*numThreads*sizeof(double));
+            bool *GPUchanged;
+            cudaMallocManaged(&GPUchanged, sizeof(bool));
+            cudaMemcpy(GPUchanged, &changed, sizeof(bool), cudaMemcpyHostToDevice);
 
-                distanceSquaredSum += minDistance;
+            int *GPUclusters;
+            cudaMallocManaged(&GPUclusters, num_rows*sizeof(int));
+            cudaMemcpy(GPUclusters, clusters.data(), num_rows*sizeof(int), cudaMemcpyHostToDevice);
 
-                if (clusterIndex != clusters[i]) {
-                    clusters[i] = clusterIndex;
-                    changed = true;
-                }
+            double *GPUdata;
+            cudaMallocManaged(&GPUdata, num_rows*num_columns*sizeof(double));
+            cudaMemcpy(GPUdata, data.data(), num_rows*num_columns*sizeof(double), cudaMemcpyHostToDevice);
+
+            double *GPUcentroids;
+            cudaMallocManaged(&GPUcentroids, numClusters*num_columns*sizeof(double));
+            cudaMemcpy(GPUcentroids, centroids.data(), numClusters*num_columns*sizeof(double), cudaMemcpyHostToDevice);
+            
+            kernel<<<numBlocks, numThreads>>>(numClusters, num_columns, num_rows, GPUdata, GPUcentroids, GPUclusters, GPUchanged, GPUdistanceSquaredSum);
+            cudaDeviceSynchronize();
+            printf(changed ? "true before\n" : "false before\n");
+            cudaMemcpy(&changed, GPUchanged, sizeof(bool), cudaMemcpyDeviceToHost);
+            printf(changed ? "true after\n" : "false after\n");
+            cudaMemcpy(clusters.data(), GPUclusters, num_rows*sizeof(int), cudaMemcpyDeviceToHost);
+            cudaMemcpy(distanceSquaredSumArray, GPUdistanceSquaredSum, numBlocks*numThreads*sizeof(double), cudaMemcpyDeviceToHost);
+            cudaFree(GPUchanged);
+            cudaFree(GPUclusters);
+            cudaFree(GPUdata);
+            cudaFree(GPUcentroids);
+            cudaFree(GPUdistanceSquaredSum);
+
+            for (int i = 0; i < numBlocks*numThreads; i++) {
+                distanceSquaredSum += distanceSquaredSumArray[i];
             }
 
+            printf("after\n");
+            
             if (clustersDebugFile.is_open()) {
                 clustersDebugFile.write(clusters);
             }

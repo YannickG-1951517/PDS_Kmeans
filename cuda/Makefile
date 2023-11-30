@@ -14,7 +14,9 @@ all: kmeans
 clean:
 	rm -f kmeans
 
-kmeans: main_startcode.cpp rng.cpp
-	$(CXX) $(FLAGS) -o kmeans main_startcode.cpp rng.cpp
+# kmeans: main_startcode.cpp rng.cpp
+# 	$(CXX) $(FLAGS) -o kmeans main_startcode.cpp rng.cpp
 
+kmeans:main_startcode.cu rng.cpp
+	nvcc -std=c++14 -o kmeans main_startcode.cu rng.cpp
 
