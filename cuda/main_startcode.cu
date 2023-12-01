@@ -134,8 +134,7 @@ FileCSVWriter openDebugFile(const std::string &n)
     return f;
 }
 
-__global__ void kernel (int numClusters, int num_columns, int num_rows, double data[], double centroids[], int* clusters, bool changed, double distanceSquaredSum[]) {
-    printf(changed ? "true kernel\n" : "false kernel\n");
+__global__ void kernel (int numClusters, int num_columns, int num_rows, double data[], double centroids[], int* clusters, bool* changed, double distanceSquaredSum[]) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     while (i < num_rows) {
         // double minDistance = numeric_limits<double>::max(); // can only get better
@@ -151,15 +150,17 @@ __global__ void kernel (int numClusters, int num_columns, int num_rows, double d
                 clusterIndex = k;
             }
         }
-
         distanceSquaredSum[i] = minDistance;
 
         if (clusterIndex != clusters[i]) {
-        clusters[i] = clusterIndex;
-        changed = true;
+            clusters[i] = clusterIndex;
+            (*changed)= true;
         }
         i += blockDim.x * gridDim.x;
     }
+    // for(int i = 0; i < num_rows; i++) {
+    //     printf("%d ", clusters[i]);
+    // }
 }
 
 int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFileName,
@@ -221,11 +222,12 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
             changed = false;
             double distanceSquaredSum = 0;
             
-            double distanceSquaredSumArray[numBlocks*numThreads];
+            double distanceSquaredSumArray[num_rows];
             double* GPUdistanceSquaredSum;
-            cudaMallocManaged(&GPUdistanceSquaredSum, numBlocks*numThreads*sizeof(double));
+            cudaMallocManaged(&GPUdistanceSquaredSum, num_rows*sizeof(double));
             bool *GPUchanged;
             cudaMallocManaged(&GPUchanged, sizeof(bool));
+            printf(changed ? "true before cpy\n" : "false before cpy\n");
             cudaMemcpy(GPUchanged, &changed, sizeof(bool), cudaMemcpyHostToDevice);
 
             int *GPUclusters;
@@ -242,20 +244,20 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
             
             kernel<<<numBlocks, numThreads>>>(numClusters, num_columns, num_rows, GPUdata, GPUcentroids, GPUclusters, GPUchanged, GPUdistanceSquaredSum);
             cudaDeviceSynchronize();
-            printf(changed ? "true before\n" : "false before\n");
+            printf(cudaGetErrorString(cudaGetLastError()));
+
             cudaMemcpy(&changed, GPUchanged, sizeof(bool), cudaMemcpyDeviceToHost);
-            printf(changed ? "true after\n" : "false after\n");
-            cudaMemcpy(clusters.data(), GPUclusters, num_rows*sizeof(int), cudaMemcpyDeviceToHost);
-            cudaMemcpy(distanceSquaredSumArray, GPUdistanceSquaredSum, numBlocks*numThreads*sizeof(double), cudaMemcpyDeviceToHost);
+            for (int i = 0; i < num_rows; i++) {
+                clusters[i] = GPUclusters[i];
+                distanceSquaredSum += GPUdistanceSquaredSum[i];
+            }
+            // cudaMemcpy(clusters.data(), GPUclusters, num_rows*sizeof(int), cudaMemcpyDeviceToHost);
+            // cudaMemcpy(distanceSquaredSumArray, GPUdistanceSquaredSum, numBlocks*numThreads*sizeof(double), cudaMemcpyDeviceToHost);
             cudaFree(GPUchanged);
             cudaFree(GPUclusters);
             cudaFree(GPUdata);
             cudaFree(GPUcentroids);
             cudaFree(GPUdistanceSquaredSum);
-
-            for (int i = 0; i < numBlocks*numThreads; i++) {
-                distanceSquaredSum += distanceSquaredSumArray[i];
-            }
 
             printf("after\n");
             
