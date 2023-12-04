@@ -1,0 +1,34 @@
+SLURM_JOB_ID: 60993003
+SLURM_JOB_USER: vsc35729
+SLURM_JOB_ACCOUNT: llp_h_pds
+SLURM_JOB_NAME: timing-serial.slurm
+SLURM_CLUSTER_NAME: wice
+SLURM_JOB_PARTITION: gpu
+SLURM_NNODES: 1
+SLURM_NODELIST: k28g27
+SLURM_JOB_CPUS_PER_NODE: 1
+SLURM_JOB_GPUS: 1
+Date: Sat Dec  2 13:17:33 CET 2023
+Walltime: 00-00:20:00
+========================================================================
+------------------------------------------------------------------------------
+cuda,1,512,../datasets/100000x5.csv,1951517,7,15,4.16224e+12,5.52131
+cuda,1,512,../datasets/100000x5.csv,1951517,7,15,4.16224e+12,5.44326
+cuda,1,512,../datasets/100000x5.csv,1951517,7,15,4.16224e+12,5.42736
+cuda,1,512,../datasets/100000x5.csv,1951517,7,15,4.16224e+12,5.42698
+cuda,1,512,../datasets/100000x5.csv,1951517,7,15,4.16224e+12,5.4722
+cuda,1,512,../datasets/100000x5.csv,1951517,7,15,4.16224e+12,5.43179
+cuda,1,512,../datasets/100000x5.csv,1951517,7,15,4.16224e+12,5.50702
+cuda,1,512,../datasets/100000x5.csv,1951517,7,15,4.16224e+12,5.48541
+cuda,1,512,../datasets/100000x5.csv,1951517,7,15,4.16224e+12,5.41389
+cuda,1,512,../datasets/100000x5.csv,1951517,7,15,4.16224e+12,5.42102
+------------------------------------------------------------------------------
+JOBSTAT:ELAPSED_SECONDS=59
+JOBSTAT:SLURM_CLUSTER_NAME=wice
+JOBSTAT:SLURM_NODELIST=k28g27
+JOBSTAT:SLURM_NTASKS=1
+JOBSTAT:SLURM_GPUS_PER_NODE=1
+JOBSTAT:SLURM_JOB_CPUS_PER_NODE=1
+JOBSTAT:SLURM_JOB_NUM_NODES=1
+JOBSTAT:SLURM_JOB_PARTITION=gpu
+JOBSTAT:ESTIMATED_CREDITS=141
