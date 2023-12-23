@@ -6,6 +6,7 @@
 #include "CSVWriter.hpp"
 #include "rng.h"
 #include "timer.h"
+#include <mpi.h>
 //#include "rng.cpp"
 
 using namespace std;
@@ -134,36 +135,9 @@ FileCSVWriter openDebugFile(const std::string &n)
     return f;
 }
 
-__global__ void kernel (int numClusters, int num_columns, int num_rows, double data[], double centroids[], int* clusters, bool* changed, double distanceSquaredSum[], int countPerThread) {
-    int i = (blockIdx.x * blockDim.x + threadIdx.x)*countPerThread;
-    int last = i + countPerThread;
-    while (i < last && i < num_rows) {
-        // double minDistance = numeric_limits<double>::max(); // can only get better
-        double minDistance = __DBL_MAX__; // can only get better
-        int clusterIndex;
-        for (int k = 0; k < numClusters; k++) {
-            double currentDistance = 0;
-            for (int j = 0; j < num_columns; j++) {
-                currentDistance += pow((data[i * num_columns + j] - centroids[k * num_columns + j]), 2);
-            }
-            if (minDistance > currentDistance) {
-                minDistance = currentDistance;
-                clusterIndex = k;
-            }
-        }
-        distanceSquaredSum[i] = minDistance;
-
-        if (clusterIndex != clusters[i]) {
-            clusters[i] = clusterIndex;
-            (*changed)= true;
-        }
-        i++;
-    }
-}
-
 int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFileName,
-            int numClusters, int repetitions, int numBlocks, int numThreads,
-            const std::string &centroidDebugFileName, const std::string &clusterDebugFileName)
+           int numClusters, int repetitions, int numBlocks, int numThreads,
+           const std::string &centroidDebugFileName, const std::string &clusterDebugFileName)
 {
     // If debug filenames are specified, this opens them. The is_open method
     // can be used to check if they are actually open and should be written to.
@@ -195,27 +169,6 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
     // Do the k-means routine a number of times, each time starting from
     // different random centroids (use Rng::pickRandomIndices), and keep
     // the best result of these repetitions.
-
-    double distanceSquaredSumArray[num_rows];
-    double* GPUdistanceSquaredSum;
-    cudaMallocManaged(&GPUdistanceSquaredSum, num_rows*sizeof(double));
-    bool *GPUchanged;
-    cudaMallocManaged(&GPUchanged, sizeof(bool));
-    int *GPUclusters;
-    cudaMallocManaged(&GPUclusters, num_rows*sizeof(int));
-    double *GPUdata;
-    cudaMallocManaged(&GPUdata, num_rows*num_columns*sizeof(double));
-    double *GPUcentroids;
-    cudaMallocManaged(&GPUcentroids, numClusters*num_columns*sizeof(double));
-    cudaMemcpy(GPUdata, data.data(), num_rows*num_columns*sizeof(double), cudaMemcpyHostToDevice);
-
-    int countPerThread = num_rows/(numBlocks*numThreads);
-    if (num_rows%(numBlocks*numThreads) != 0) {
-        countPerThread++;
-    }
-
-    // printf("countPerThread: %d\n", countPerThread);
-
     for (int r = 0 ; r < repetitions ; r++)
     {
         size_t numSteps = 0;
@@ -233,7 +186,6 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
         }
 
         vector<int> clusters(num_rows, -1);
-        
 
         bool changed = true;
         while (changed) {
@@ -242,26 +194,30 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
             changed = false;
             double distanceSquaredSum = 0;
             
-            cudaMemcpy(GPUchanged, &changed, sizeof(bool), cudaMemcpyHostToDevice);
+            MPI_Init();
 
-            cudaMemcpy(GPUclusters, clusters.data(), num_rows*sizeof(int), cudaMemcpyHostToDevice);
-
-            cudaMemcpy(GPUcentroids, centroids.data(), numClusters*num_columns*sizeof(double), cudaMemcpyHostToDevice);
-
-            kernel<<<numBlocks, numThreads>>>(numClusters, num_columns, num_rows, GPUdata, GPUcentroids, GPUclusters, GPUchanged, GPUdistanceSquaredSum, countPerThread);
-            // cudaDeviceSynchronize();
-            // printf(cudaGetErrorString(cudaGetLastError()));
-
-            cudaMemcpy(&changed, GPUchanged, sizeof(bool), cudaMemcpyDeviceToHost);
             for (int i = 0; i < num_rows; i++) {
-                clusters[i] = GPUclusters[i];
-                distanceSquaredSum += GPUdistanceSquaredSum[i];
+                double minDistance = numeric_limits<double>::max(); // can only get better
+                int clusterIndex;
+                for (int k = 0; k < numClusters; k++) {
+                    double currentDistance = 0;
+                    for (int j = 0; j < num_columns; j++) {
+                        currentDistance += pow((data[i * num_columns + j] - centroids[k * num_columns + j]), 2);
+                    }
+                    if (minDistance > currentDistance) {
+                        minDistance = currentDistance;
+                        clusterIndex = k;
+                    }
+                }
+
+                distanceSquaredSum += minDistance;
+
+                if (clusterIndex != clusters[i]) {
+                    clusters[i] = clusterIndex;
+                    changed = true;
+                }
             }
 
-
-            
-
-            
             if (clustersDebugFile.is_open()) {
                 clustersDebugFile.write(clusters);
             }
@@ -296,7 +252,6 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
             }
         }
 
-
         stepsPerRepetition[r] = numSteps;
 
         // Make sure debug logging is only done on first iteration ; subsequent checks
@@ -305,17 +260,11 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
         clustersDebugFile.close();
     }
 
-    cudaFree(GPUchanged);
-    cudaFree(GPUclusters);
-    cudaFree(GPUdata);
-    cudaFree(GPUcentroids);
-    cudaFree(GPUdistanceSquaredSum);
-
     timer.stop();
 
     // Some example output, of course you can log your timing data anyway you like.
     std::cerr << "# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,timeinseconds" << std::endl;
-    std::cout << "cuda," << numBlocks << "," << numThreads << "," << inputFile << ","
+    std::cout << "sequential," << numBlocks << "," << numThreads << "," << inputFile << ","
               << rng.getUsedSeed() << "," << numClusters << ","
               << repetitions << "," << bestDistSquaredSum << "," << timer.durationNanoSeconds()/1e9
               << std::endl;
