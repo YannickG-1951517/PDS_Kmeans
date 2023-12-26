@@ -194,6 +194,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
     std::vector<double> local_data(count);
     vector<int> local_clusters(count/num_columns, -1);
 
+    MPI_Scatter(data.data(), count, MPI_DOUBLE, local_data.data(), count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     for (int r = 0 ; r < repetitions ; r++)
     {
@@ -216,12 +217,9 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
         while (changed) {
             numSteps++;
 
-            
-
             changed = false;
             double distanceSquaredSum = 0;
 
-            MPI_Scatter(data.data(), count, MPI_DOUBLE, local_data.data(), count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
             MPI_Bcast(centroids.data(), numClusters*num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
             MPI_Scatter(clusters.data(), count/num_columns, MPI_INT, local_clusters.data(), count/num_columns, MPI_INT, 0, MPI_COMM_WORLD);
 
@@ -260,7 +258,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
             MPI_Reduce(&distanceSquaredSum, &totalDistanceSquaredSum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
             MPI_Gather(local_clusters.data(), localNumRows, MPI_INT, clusters.data(), localNumRows, MPI_INT, 0, MPI_COMM_WORLD);
-            MPI_Gather(local_data.data(), localNumRows*num_columns, MPI_DOUBLE, data.data(), localNumRows*num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            // MPI_Gather(local_data.data(), localNumRows*num_columns, MPI_DOUBLE, data.data(), localNumRows*num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
             MPI_Reduce(&localChanged, &changed, 1, MPI_C_BOOL, MPI_LOR, 0, MPI_COMM_WORLD);
             
