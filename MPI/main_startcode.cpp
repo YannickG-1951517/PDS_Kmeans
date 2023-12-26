@@ -154,6 +154,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
     FileCSVWriter csvOutputFile(outputFileName);
 
+    double start;
     if (rank == 0) {
 
         if (!csvOutputFile.is_open())
@@ -166,7 +167,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
         readData(file, data, num_rows, num_columns);
 
         // start time
-        double start = MPI_Wtime();
+        start = MPI_Wtime();
     }
 
     // broadcast number of rows and columns
@@ -191,6 +192,8 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
     cout<<count<<endl;
 
     std::vector<double> local_data(count);
+    vector<int> local_clusters(count/num_columns, -1);
+
 
     for (int r = 0 ; r < repetitions ; r++)
     {
@@ -199,36 +202,37 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
         vector<size_t> indices(numClusters);
         rng.pickRandomIndices(num_rows, indices);
 
-        vector<double> centroids;
+        vector<double> centroids(num_columns*numClusters);
         if (rank == 0) {
             for (int i = 0; i < indices.size(); i++) {
                 for (int j = 0; j < num_columns; j++) {
-                    centroids.push_back(data[indices[i]*num_columns+j]);
+                    centroids[i*num_columns+j] = data[indices[i]*num_columns+j];
                 }
             }
         }
-        return 0;
         vector<int> clusters(num_rows, -1);
 
         bool changed = true;
         while (changed) {
             numSteps++;
 
+            
+
             changed = false;
             double distanceSquaredSum = 0;
 
-            // MPI_Scatter(data.data(), count, MPI_DOUBLE, local_data.data(), count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            // MPI_Bcast(centroids.data(), numClusters*num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
+            MPI_Scatter(data.data(), count, MPI_DOUBLE, local_data.data(), count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            MPI_Bcast(centroids.data(), numClusters*num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            MPI_Scatter(clusters.data(), count/num_columns, MPI_INT, local_clusters.data(), count/num_columns, MPI_INT, 0, MPI_COMM_WORLD);
 
             if (rank == size-1) {
                 int oversize = size*count - num_rows*num_columns;
                 local_data.resize(count-oversize);
-                cout<<"oversize "<<oversize<<endl;
+                local_clusters.resize(count/num_columns-oversize/num_columns);
+                // cout<<"oversize: "<<oversize<<endl;
             }
-
             int localNumRows = local_data.size()/num_columns;
-            vector<int> local_clusters(localNumRows, -1);
+            bool localChanged = false;
 
             for (int i = 0; i < localNumRows; i++) {
                 double minDistance = numeric_limits<double>::max(); // can only get better
@@ -246,15 +250,21 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
                 distanceSquaredSum += minDistance;
 
-                if (clusterIndex != clusters[i]) {
+                if (clusterIndex != local_clusters[i]) {
                     local_clusters[i] = clusterIndex;
-                    changed = true;
+                    localChanged = true;
                 }
             }
 
-            // MPI_Reduce(MPI_IN_PLACE, &distanceSquaredSum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-            // MPI_Gather(local_clusters.data(), localNumRows, MPI_INT, clusters.data(), localNumRows, MPI_INT, 0, MPI_COMM_WORLD);
-            // MPI_Gather(local_data.data(), localNumRows*num_columns, MPI_DOUBLE, data.data(), localNumRows*num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            double totalDistanceSquaredSum = 0;
+
+            MPI_Reduce(&distanceSquaredSum, &totalDistanceSquaredSum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+            MPI_Gather(local_clusters.data(), localNumRows, MPI_INT, clusters.data(), localNumRows, MPI_INT, 0, MPI_COMM_WORLD);
+            MPI_Gather(local_data.data(), localNumRows*num_columns, MPI_DOUBLE, data.data(), localNumRows*num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+            MPI_Reduce(&localChanged, &changed, 1, MPI_C_BOOL, MPI_LOR, 0, MPI_COMM_WORLD);
+            
+            MPI_Bcast(&changed, 1, MPI_C_BOOL, 0, MPI_COMM_WORLD);
 
             if (rank == 0) {
                 if (clustersDebugFile.is_open()) {
@@ -271,7 +281,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
                 }
             
                 if (changed) {
-                    vector<vector<double>> pointsTotals(numClusters, vector<double> (num_columns+1, 0)); // per centroid x, y, #points
+                    vector<vector<double>> pointsTotals(numClusters, vector<double> (num_columns+1, 0)); // per centroid x, y, #points 
                     for (int i = 0; i < num_rows; i++) {
                         for (int j = 0; j < num_columns; j++) {
                             pointsTotals[clusters[i]][j] += data[i*num_columns+j];
@@ -284,9 +294,9 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
                         }
                     }
                 }
-                if (distanceSquaredSum < bestDistSquaredSum) {
+                if (totalDistanceSquaredSum < bestDistSquaredSum) {
                     bestClusters = clusters;
-                    bestDistSquaredSum = distanceSquaredSum;
+                    bestDistSquaredSum = totalDistanceSquaredSum;
                 }
             }
         }
@@ -300,18 +310,21 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
     }
 
     // timer.stop();
+    if (rank == 0) {
+        double time = MPI_Wtime() - start;
 
-    // Some example output, of course you can log your timing data anyway you like.
-    std::cerr << "# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,timeinseconds" << std::endl;
-    std::cout << "sequential," << numBlocks << "," << numThreads << "," << inputFile << ","
-              << rng.getUsedSeed() << "," << numClusters << ","
-            //   << repetitions << "," << bestDistSquaredSum << "," << timer.durationNanoSeconds()/1e9
-              << std::endl;
+        // Some example output, of course you can log your timing data anyway you like.
+        std::cerr << "# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,timeinseconds" << std::endl;
+        std::cout << "sequential," << numBlocks << "," << numThreads << "," << inputFile << ","
+                << rng.getUsedSeed() << "," << numClusters << ","
+                << repetitions << "," << bestDistSquaredSum << "," << time
+                << std::endl;
 
-    // Write the number of steps per repetition, kind of a signature of the work involved
-    csvOutputFile.write(stepsPerRepetition, "# Steps: ");
-    // Write best clusters to csvOutputFile, something like
-    csvOutputFile.write(bestClusters);
+        // Write the number of steps per repetition, kind of a signature of the work involved
+        csvOutputFile.write(stepsPerRepetition, "# Steps: ");
+        // Write best clusters to csvOutputFile, something like
+        csvOutputFile.write(bestClusters);
+    }
     return 0;
 }
 
