@@ -313,7 +313,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
         // Some example output, of course you can log your timing data anyway you like.
         std::cerr << "# Type,blocks,threads,file,seed,clusters,repetitions,bestdistsquared,timeinseconds" << std::endl;
-        std::cout << "sequential," << numBlocks << "," << numThreads << "," << inputFile << ","
+        std::cout << "MPI," << numBlocks << "," << numThreads << "," << inputFile << ","
                 << rng.getUsedSeed() << "," << numClusters << ","
                 << repetitions << "," << bestDistSquaredSum << "," << time
                 << std::endl;
