@@ -11,7 +11,7 @@ source /data/leuven/303/vsc30380/slurmhooks
 
 module load iimpi/2022b
 
-for i in {1..16}
+for i in {1..10}
 do
     for j in {1..4}
     do

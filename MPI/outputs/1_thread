@@ -1,0 +1,27 @@
+SLURM_JOB_ID: 61048414
+SLURM_JOB_USER: vsc35733
+SLURM_JOB_ACCOUNT: llp_h_pds
+SLURM_JOB_NAME: 1_thread.slurm
+SLURM_CLUSTER_NAME: wice
+SLURM_JOB_PARTITION: batch
+SLURM_NNODES: 1
+SLURM_NODELIST: s28c11n4
+SLURM_JOB_CPUS_PER_NODE: 1
+Date: Tue Dec 26 17:13:26 CET 2023
+Walltime: 00-00:30:00
+========================================================================
+------------------------------------------------------------------------------
+MPI,1,1,../datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,253.759
+MPI,1,1,../datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,251.22
+MPI,1,1,../datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,252.39
+MPI,1,1,../datasets/1M_1000000x4.csv,1951517,7,15,1.41729e+12,252.236
+------------------------------------------------------------------------------
+JOBSTAT:ELAPSED_SECONDS=1022
+JOBSTAT:SLURM_CLUSTER_NAME=wice
+JOBSTAT:SLURM_NODELIST=s28c11n4
+JOBSTAT:SLURM_NTASKS=1
+JOBSTAT:SLURM_GPUS_PER_NODE=
+JOBSTAT:SLURM_JOB_CPUS_PER_NODE=1
+JOBSTAT:SLURM_JOB_NUM_NODES=1
+JOBSTAT:SLURM_JOB_PARTITION=batch
+JOBSTAT:ESTIMATED_CREDITS=43

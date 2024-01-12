@@ -1,11 +1,11 @@
 #!/bin/bash -l
 #SBATCH --cluster=wice
 #SBATCH --account=llp_h_pds
-#SBATCH --nodes=4
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=72
 #SBATCH --time=00:30:00
-#SBATCH --error="n_proc_4_big-error"
-#SBATCH --output="n_proc_4_big"
+#SBATCH --error="n_proc_1_big-error"
+#SBATCH --output="n_proc_1_big"
 
 source /data/leuven/303/vsc30380/slurmhooks
 
