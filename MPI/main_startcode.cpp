@@ -123,10 +123,11 @@ void readData(std::ifstream &input, std::vector<double> &allData, int &numRows, 
     numCols = (size_t)numColsExpected;
 }
 
-FileCSVWriter openDebugFile(const std::string &n)
+FileCSVWriter openDebugFile(const std::string &n, int rank)
 {
     FileCSVWriter f;
-
+    if (rank != 0)
+        return f;
     if (n.length() != 0)
     {
         f.open(n);
@@ -149,14 +150,14 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
     int num_rows;
     int num_columns;
 
-    FileCSVWriter centroidDebugFile = openDebugFile(centroidDebugFileName);
-    FileCSVWriter clustersDebugFile = openDebugFile(clusterDebugFileName);
+    FileCSVWriter centroidDebugFile = openDebugFile(centroidDebugFileName, rank);
+    FileCSVWriter clustersDebugFile = openDebugFile(clusterDebugFileName, rank);
 
-    FileCSVWriter csvOutputFile(outputFileName);
+    FileCSVWriter csvOutputFile;
 
     double start;
     if (rank == 0) {
-
+        csvOutputFile.open(outputFileName);
         if (!csvOutputFile.is_open())
         {
             std::cerr << "Unable to open output file " << outputFileName << std::endl;
@@ -189,7 +190,6 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
     int size;
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     int count = ceil(num_rows/(double)size)*num_columns;
-    cout<<count<<endl;
 
     std::vector<double> local_data(count);
     vector<int> local_clusters(count/num_columns, -1);
@@ -303,8 +303,10 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
         // Make sure debug logging is only done on first iteration ; subsequent checks
         // with is_open will indicate that no logging needs to be done anymore.
-        centroidDebugFile.close();
-        clustersDebugFile.close();
+        if (rank == 0) {
+            centroidDebugFile.close();
+            clustersDebugFile.close();
+        }
     }
 
     // timer.stop();
@@ -322,6 +324,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
         csvOutputFile.write(stepsPerRepetition, "# Steps: ");
         // Write best clusters to csvOutputFile, something like
         csvOutputFile.write(bestClusters);
+        csvOutputFile.close();
     }
     return 0;
 }

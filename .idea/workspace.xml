@@ -11,6 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="50c2fb52-09f5-4cfc-82f6-4f23454586f3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MPI/main_startcode.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/MPI/main_startcode.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +53,7 @@
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -106,6 +108,9 @@
       <workItem from="1699266079588" duration="2939000" />
       <workItem from="1699393300485" duration="198000" />
       <workItem from="1699449236073" duration="579000" />
+      <workItem from="1704120304982" duration="58000" />
+      <workItem from="1704120377100" duration="1188000" />
+      <workItem from="1705173571510" duration="3891000" />
     </task>
     <servers />
   </component>
