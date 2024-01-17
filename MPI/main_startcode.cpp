@@ -189,12 +189,21 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
     int size;
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+    // std::cout << "size: " << size << std::endl;
     int count = ceil(num_rows/(double)size)*num_columns;
+    // std::cout << "count: " << count << std::endl;
+    // std::cout << "count: " << ceil(num_rows/(double)7)*num_columns << std::endl;
 
     std::vector<double> local_data(count);
     vector<int> local_clusters(count/num_columns, -1);
 
     MPI_Scatter(data.data(), count, MPI_DOUBLE, local_data.data(), count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    int oversize;
+    if (rank == size-1) {
+        oversize = size*count - num_rows*num_columns;
+        local_data.resize(count-oversize);
+    }
+
 
     for (int r = 0 ; r < repetitions ; r++)
     {
@@ -220,13 +229,15 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
             changed = false;
             double distanceSquaredSum = 0;
 
+            local_clusters.resize(count/num_columns);
+            cout << "local_clusters size: " << local_clusters.size() << endl;
+
             MPI_Bcast(centroids.data(), numClusters*num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
             MPI_Scatter(clusters.data(), count/num_columns, MPI_INT, local_clusters.data(), count/num_columns, MPI_INT, 0, MPI_COMM_WORLD);
 
             if (rank == size-1) {
-                int oversize = size*count - num_rows*num_columns;
-                local_data.resize(count-oversize);
                 local_clusters.resize(count/num_columns-oversize/num_columns);
+                // cout << "last cluster: " << local_clusters[local_clusters.size()-1] << endl;
                 // cout<<"oversize: "<<oversize<<endl;
             }
             int localNumRows = local_data.size()/num_columns;
@@ -254,11 +265,18 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
                 }
             }
 
+            if (rank == size-1) {
+                local_clusters.resize(count/num_columns);
+            }
+
             double totalDistanceSquaredSum = 0;
 
             MPI_Reduce(&distanceSquaredSum, &totalDistanceSquaredSum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
             MPI_Gather(local_clusters.data(), localNumRows, MPI_INT, clusters.data(), localNumRows, MPI_INT, 0, MPI_COMM_WORLD);
-            // MPI_Gather(local_data.data(), localNumRows*num_columns, MPI_DOUBLE, data.data(), localNumRows*num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+            if (rank == 0) {
+                clusters.resize(num_rows);
+            }
 
             MPI_Reduce(&localChanged, &changed, 1, MPI_C_BOOL, MPI_LOR, 0, MPI_COMM_WORLD);
             
@@ -303,10 +321,10 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
         // Make sure debug logging is only done on first iteration ; subsequent checks
         // with is_open will indicate that no logging needs to be done anymore.
-        if (rank == 0) {
-            centroidDebugFile.close();
-            clustersDebugFile.close();
-        }
+        if (rank == 0 && centroidDebugFile.is_open())
+        centroidDebugFile.close();
+        if (rank == 0 && clustersDebugFile.is_open())
+        clustersDebugFile.close();
     }
 
     // timer.stop();
@@ -321,10 +339,12 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
                 << std::endl;
 
         // Write the number of steps per repetition, kind of a signature of the work involved
-        csvOutputFile.write(stepsPerRepetition, "# Steps: ");
-        // Write best clusters to csvOutputFile, something like
-        csvOutputFile.write(bestClusters);
-        csvOutputFile.close();
+        if (csvOutputFile.is_open()) {
+            csvOutputFile.write(stepsPerRepetition, "# Steps: ");
+            // Write best clusters to csvOutputFile, something like
+            csvOutputFile.write(bestClusters);
+            csvOutputFile.close();
+        }
     }
     return 0;
 }
