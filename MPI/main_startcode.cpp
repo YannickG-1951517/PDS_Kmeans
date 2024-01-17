@@ -196,28 +196,26 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
 
 //    MPI_Scatter(data.data(), count, MPI_DOUBLE, local_data.data(), count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    int displacements[size];
-    int counts[size];
-    int oversize;
-    if (rank == 0 || rank == size-1) {
-        oversize = size*count - num_rows*num_columns;
+    std::vector<int> displacements(size);
+    std::vector<int> counts(size);
+    int oversize = size*count - num_rows*num_columns;
+    for (int i = 0; i < size; i++) {
+        displacements[i] = i * count;
+        if (i == size - 1) {
+//            cout << "oversize: " << oversize << endl;
+            counts[i] = count - oversize;
+        }
+        else
+            counts[i] = count;
     }
+    int rcv_count = counts[rank];
+
     if (rank == 0) {
         for (int i = 0; i < size; i++) {
-            displacements[i] = i * count;
-            if (i == size - 1)
-                counts[i] = count - oversize;
-            else
-                counts[i] = count;
-            counts[i] = count;
+//            cout << "counts[" << i << "]: " << counts[i] << endl;
         }
     }
-    int rcv_count = count;
-    if (rank == size-1) {
-        rcv_count = count - oversize;
-    }
-
-
+//    cout << "rank: " << rank << " rcv_count: " << rcv_count << endl;
     std::vector<double> local_data(rcv_count);
     vector<int> local_clusters(rcv_count/num_columns, -1);
 
@@ -230,8 +228,26 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 //                     MPI_Datatype datatype_recv,
 //                     int root,
 //                     MPI_Comm communicator);
-    MPI_Scatterv(data.data(), counts, displacements, MPI_DOUBLE, local_data.data(), rcv_count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
+//    if (rank == 0) {
+//        cout << "Data size before scatter: " << data.size() << " (" << (data.size() == num_columns*num_rows) << ")" << endl;
+//    }
+
+//    cout << "rank: " << rank << " rcv_count: " << rcv_count << " local_data size before scatter: " << local_data.size() << endl;
+
+    MPI_Scatterv(data.data(), counts.data(), displacements.data(), MPI_DOUBLE, local_data.data(), rcv_count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+
+//    cout << "rank: " << rank << " rcv_count: " << rcv_count << " local_data size after scatter: " << local_data.size() << endl;
+
+    for (int i = 0; i < size; i++) {
+        displacements[i] = i * rcv_count/num_columns;
+        if (i == size - 1) {
+            counts[i] = rcv_count/num_columns - oversize/num_columns;
+        }
+        else
+            counts[i] = rcv_count/num_columns;
+    }
+    rcv_count = counts[rank];
 
     for (int r = 0 ; r < repetitions ; r++)
     {
@@ -262,7 +278,8 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
             MPI_Bcast(centroids.data(), numClusters*num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 //            MPI_Scatter(clusters.data(), count/num_columns, MPI_INT, local_clusters.data(), count/num_columns, MPI_INT, 0, MPI_COMM_WORLD);
-            MPI_Scatterv(clusters.data(), counts, displacements, MPI_INT, local_clusters.data(), rcv_count/num_columns, MPI_INT, 0, MPI_COMM_WORLD);
+
+            MPI_Scatterv(clusters.data(), counts.data(), displacements.data(), MPI_INT, local_clusters.data(), rcv_count/num_columns, MPI_INT, 0, MPI_COMM_WORLD);
 //            if (rank == size-1) {
 //                local_clusters.resize(count/num_columns-oversize/num_columns);
 //                // cout << "last cluster: " << local_clusters[local_clusters.size()-1] << endl;
@@ -301,7 +318,7 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
 
             MPI_Reduce(&distanceSquaredSum, &totalDistanceSquaredSum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 //            MPI_Gather(local_clusters.data(), localNumRows, MPI_INT, clusters.data(), localNumRows, MPI_INT, 0, MPI_COMM_WORLD);
-            MPI_Gatherv(local_clusters.data(), rcv_count/num_columns, MPI_INT, clusters.data(), counts, displacements, MPI_INT, 0, MPI_COMM_WORLD);
+            MPI_Gatherv(local_clusters.data(), rcv_count/num_columns, MPI_INT, clusters.data(), counts.data(), displacements.data(), MPI_INT, 0, MPI_COMM_WORLD);
 //            if (rank == 0) {
 //                clusters.resize(num_rows);
 //            }
