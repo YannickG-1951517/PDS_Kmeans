@@ -194,15 +194,43 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
     // std::cout << "count: " << count << std::endl;
     // std::cout << "count: " << ceil(num_rows/(double)7)*num_columns << std::endl;
 
-    std::vector<double> local_data(count);
-    vector<int> local_clusters(count/num_columns, -1);
 
-    MPI_Scatter(data.data(), count, MPI_DOUBLE, local_data.data(), count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+//    MPI_Scatter(data.data(), count, MPI_DOUBLE, local_data.data(), count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    int displacements[size];
+    int counts[size];
     int oversize;
-    if (rank == size-1) {
+    if (rank == 0 || rank == size-1) {
         oversize = size*count - num_rows*num_columns;
-        local_data.resize(count-oversize);
     }
+    if (rank == 0) {
+        for (int i = 0; i < size; i++) {
+            displacements[i] = i * count;
+            if (i == size - 1)
+                counts[i] = count - oversize;
+            else
+                counts[i] = count;
+            counts[i] = count;
+        }
+    }
+    int rcv_count = count;
+    if (rank == size-1) {
+        rcv_count = count - oversize;
+    }
+
+
+    std::vector<double> local_data(rcv_count);
+    vector<int> local_clusters(rcv_count/num_columns, -1);
+
+//    int MPI_Scatterv(const void* buffer_send,
+//                     const int counts_send[],
+//                     const int displacements[],
+//                     MPI_Datatype datatype_send,
+//                     void* buffer_recv,
+//                     int count_recv,
+//                     MPI_Datatype datatype_recv,
+//                     int root,
+//                     MPI_Comm communicator);
+    MPI_Scatterv(data.data(), counts, displacements, MPI_DOUBLE, local_data.data(), rcv_count, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
 
     for (int r = 0 ; r < repetitions ; r++)
@@ -229,17 +257,17 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
             changed = false;
             double distanceSquaredSum = 0;
 
-            local_clusters.resize(count/num_columns);
-            cout << "local_clusters size: " << local_clusters.size() << endl;
+//            local_clusters.resize(count/num_columns);
+//            cout << "local_clusters size: " << local_clusters.size() << endl;
 
             MPI_Bcast(centroids.data(), numClusters*num_columns, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            MPI_Scatter(clusters.data(), count/num_columns, MPI_INT, local_clusters.data(), count/num_columns, MPI_INT, 0, MPI_COMM_WORLD);
-
-            if (rank == size-1) {
-                local_clusters.resize(count/num_columns-oversize/num_columns);
-                // cout << "last cluster: " << local_clusters[local_clusters.size()-1] << endl;
-                // cout<<"oversize: "<<oversize<<endl;
-            }
+//            MPI_Scatter(clusters.data(), count/num_columns, MPI_INT, local_clusters.data(), count/num_columns, MPI_INT, 0, MPI_COMM_WORLD);
+            MPI_Scatterv(clusters.data(), counts, displacements, MPI_INT, local_clusters.data(), rcv_count/num_columns, MPI_INT, 0, MPI_COMM_WORLD);
+//            if (rank == size-1) {
+//                local_clusters.resize(count/num_columns-oversize/num_columns);
+//                // cout << "last cluster: " << local_clusters[local_clusters.size()-1] << endl;
+//                // cout<<"oversize: "<<oversize<<endl;
+//            }
             int localNumRows = local_data.size()/num_columns;
             bool localChanged = false;
 
@@ -265,18 +293,18 @@ int kmeans(Rng &rng, const std::string &inputFile, const std::string &outputFile
                 }
             }
 
-            if (rank == size-1) {
-                local_clusters.resize(count/num_columns);
-            }
+//            if (rank == size-1) {
+//                local_clusters.resize(count/num_columns);
+//            }
 
             double totalDistanceSquaredSum = 0;
 
             MPI_Reduce(&distanceSquaredSum, &totalDistanceSquaredSum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-            MPI_Gather(local_clusters.data(), localNumRows, MPI_INT, clusters.data(), localNumRows, MPI_INT, 0, MPI_COMM_WORLD);
-
-            if (rank == 0) {
-                clusters.resize(num_rows);
-            }
+//            MPI_Gather(local_clusters.data(), localNumRows, MPI_INT, clusters.data(), localNumRows, MPI_INT, 0, MPI_COMM_WORLD);
+            MPI_Gatherv(local_clusters.data(), rcv_count/num_columns, MPI_INT, clusters.data(), counts, displacements, MPI_INT, 0, MPI_COMM_WORLD);
+//            if (rank == 0) {
+//                clusters.resize(num_rows);
+//            }
 
             MPI_Reduce(&localChanged, &changed, 1, MPI_C_BOOL, MPI_LOR, 0, MPI_COMM_WORLD);
             
